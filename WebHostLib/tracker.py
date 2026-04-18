@@ -175,6 +175,18 @@ class TrackerData:
         return hints
 
     @_cache_results
+    def get_progression_hints(self) -> Dict[int, Set[Hint]]:
+        """Retrieves a dictionary of all progression hints."""
+        hints = {}
+        for team, players in self.get_all_slots().items():
+            hints[team] = set()
+            for player in players:
+                player_hints = self.get_player_hints(team, player)
+                hints[team] |= {hint for hint in player_hints if hint.item_flags & 0b01}
+
+        return hints
+
+    @_cache_results
     def get_team_locations_total_count(self) -> Dict[int, int]:
         """Retrieves a dictionary of total player locations each team has."""
         return {
@@ -464,6 +476,7 @@ def render_generic_multiworld_tracker(tracker_data: TrackerData, enabled_tracker
         item_id_to_name=tracker_data.item_id_to_name,
         location_id_to_name=tracker_data.location_id_to_name,
         saving_second=tracker_data.get_room_saving_second(),
+        progression_hints=tracker_data.get_progression_hints(),
     )
 
 
