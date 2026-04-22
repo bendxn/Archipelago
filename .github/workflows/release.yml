@@ -169,7 +169,7 @@ jobs:
         with:
           draft: true  # see above
           prerelease: false
-          name: Archipelago ${{ env.RELEASE_VERSION }}
+          name: Archipelago-BAD ${{ env.RELEASE_VERSION }}
           files: |
             dist/*
         env:
