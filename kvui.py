@@ -946,9 +946,6 @@ class GameManager(ThemedApp):
         hint_panel = self.add_client_tab("Hints", HintLayout(self.hint_log))
         self.log_panels["Hints"] = hint_panel.content
 
-        progression_sends_log = self.add_client_tab("Progression", UILog())
-        self.log_panels["Progression"] = progression_sends_log.content
-
         self.main_area_container = MDGridLayout(size_hint_y=1, rows=1)
         tab_container = MDGridLayout(size_hint_y=1, cols=1)
         tab_container.add_widget(self.tabs)
@@ -1101,30 +1098,9 @@ class GameManager(ThemedApp):
             logging.getLogger("Client").exception(e)
 
     def print_json(self, data: typing.List[JSONMessagePart]):
-        text = self.json_to_kivy_parser(copy.deepcopy(data))
+        text = self.json_to_kivy_parser(data)
         self.log_panels["Archipelago"].on_message_markup(text)
         self.log_panels["All"].on_message_markup(text)
-        is_self_sent_progression = self.is_self_sent_progression(copy.deepcopy(data))
-        if is_self_sent_progression:
-            other_text = self.json_to_kivy_parser(copy.deepcopy(data))
-            self.log_panels["Progression"].on_message_markup(other_text)
-
-    def is_self_sent_progression(self, data: typing.List[JSONMessagePart]):
-        hint_status_nodes = [node for node in data if node.get("type", None) == JSONTypes.hint_status]
-        hint_status_node = hint_status_nodes[0] if 0 < len(hint_status_nodes) else None
-        if hint_status_node is not None:
-            return False
-        item_nodes = [node for node in data if node.get("type", None) == JSONTypes.item_id]
-        item_node = item_nodes[0] if 0 < len(item_nodes) else None
-        if item_node is None:
-            return False
-        player_nodes = [node for node in data if node.get("type", None) == JSONTypes.player_id]
-        player_node = player_nodes[0] if 0 < len(player_nodes) else None
-        if player_node is not None and item_node is not None:
-            player = int(player_node["text"])
-            if self.ctx.slot_concerns_self(player) and item_node.get("flags") & 0b001:
-                return True
-        return False
 
     def focus_textinput(self):
         if hasattr(self, "textinput"):
